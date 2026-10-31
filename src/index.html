@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jurnal Trading — Saham &amp; Crypto</title>
+<meta name="theme-color" content="#0b0d0c">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Jurnal Trading — Saham &amp; Crypto">
+<meta property="og:description" content="Jurnal trading offline: catat posisi, hitung P/L dan R multiple, harga live Binance &amp; IDX, multi profil.">
+<meta name="twitter:card" content="summary">
+<meta name="description" content="Jurnal trading offline untuk saham dan crypto.">
+<meta name="color-scheme" content="dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0d0c'/%3E%3Cpath d='M6 22l6-7 4 4 8-11' stroke='%23e6b453' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip ke konten utama</a>
+
+<!-- icon sprite: one stroke family (1.75px), no emoji -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4l10-10-4-4L4 16v4Z"/><path d="M13.5 6.5 17.5 10.5"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9 7V5h6v2"/><path d="M6 7l1 13h10l1-13"/><path d="M10 11v6M14 11v6"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12S18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M3 3l18 18"/><path d="M10.6 6.1A9.6 9.6 0 0 1 12 6c6 0 9.5 6 9.5 6a17 17 0 0 1-2.4 3.2"/><path d="M6.3 7.8A17 17 0 0 0 2.5 12S6 18 12 18a9.4 9.4 0 0 0 3.3-.6"/><path d="M9.9 10a3 3 0 0 0 4.2 4.2"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11"/><path d="M8 11l4 4 4-4"/><path d="M4 19h16"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 20V9"/><path d="M8 13l4-4 4 4"/><path d="M4 5h16"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M8 10l4 4 4-4"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V5"/><path d="M4 20h16"/><path d="M7 16l4-5 3 3 5-7"/></symbol>
+</svg>
+
+<div class="app">
+  <aside class="side">
+    <div class="profile-switcher">
+      <button class="profile-btn" id="btnProfile" aria-haspopup="dialog" aria-expanded="false" aria-label="Ganti profil">
+        <span class="avatar" id="profileAvatar" aria-hidden="true">1</span>
+        <span class="pmeta">
+          <span class="pname" id="profileName">Profil 1</span>
+          <span class="pstat" id="profileStat">0 trade</span>
+        </span>
+        <svg class="ic ic-sm" aria-hidden="true"><use href="#i-chevron"/></svg>
+      </button>
+    </div>
+
+    <nav class="nav" id="nav" aria-label="Navigasi utama">
+      <button data-view="dash" aria-current="true">Dashboard</button>
+      <button data-view="trades">Transaksi</button>
+      <button data-view="analytics">Analitik</button>
+      <button data-view="journal">Jurnal</button>
+      <button data-view="settings">Pengaturan</button>
+    </nav>
+
+    <div class="side-foot">
+      <div class="side-stat">
+        <div class="lbl">Net P/L (filter aktif)</div>
+        <div class="val" id="sideNet">—</div>
+      </div>
+      <div class="side-stat">
+        <div class="lbl">Total trade (semua)</div>
+        <div class="val" id="sideCount">0</div>
+      </div>
+    </div>
+  </aside>
+
+  <main id="main">
+    <header class="topbar">
+      <h1 id="viewTitle">Dashboard</h1>
+      <span class="crumb" id="viewCrumb"></span>
+      <div class="spacer"></div>
+
+      <div class="seg" id="curSeg" role="group" aria-label="Filter mata uang">
+        <button data-cur="IDR" aria-pressed="true">IDR</button>
+        <button data-cur="USD" aria-pressed="false">USD</button>
+        <button data-cur="ALL" aria-pressed="false">Semua</button>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="btnEye" aria-pressed="false" title="Sembunyikan nominal" aria-label="Sembunyikan nominal"><svg class="ic" aria-hidden="true"><use href="#i-eye"/></svg></button>
+      <button class="btn btn-primary" id="btnNew"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg> Trade baru</button>
+    </header>
+
+    <!-- ============ DASHBOARD ============ -->
+    <section class="view is-active" id="view-dash">
+      <div class="kpis" id="dashKpis"></div>
+
+      <div class="grid-2 grid-balance" style="margin-top:16px">
+        <div class="card">
+          <div class="card-head">
+            <h2>Equity curve &amp; drawdown</h2>
+            <span class="hint" id="equityHint"></span>
+            <div class="spacer"></div>
+            <div class="chart-legend" id="equityLegend"></div>
+          </div>
+          <div class="chart-wrap" id="equityChartWrap"></div>
+          <p class="chart-summary" id="equitySummary"></p>
+          <div style="display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap">
+            <button class="btn btn-ghost btn-sm" id="btnEquityTable" aria-expanded="false" aria-controls="equityTable">
+              <svg class="ic ic-sm" aria-hidden="true"><use href="#i-chart"/></svg> Lihat data
+            </button>
+            <span class="field-hint">tabel alternatif: angka pasti per trade, ramah screen reader</span>
+          </div>
+          <div class="chart-table" id="equityTable" hidden></div>
+        </div>
+
+        <div>
+          <div class="card">
+            <div class="card-head"><h2>P/L per bulan</h2></div>
+            <div class="bars" id="monthlyBars"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <h2>Posisi terbuka &amp; P/L berjalan</h2>
+              <div class="spacer"></div>
+              <span class="hint" id="openCount"></span>
+              <button class="icon-btn" type="button" id="btnRefreshPrices" aria-label="Perbarui harga sekarang" title="Perbarui harga (otomatis tiap 60 menit)">
+                <svg class="ic ic-sm" aria-hidden="true"><use href="#i-refresh"/></svg>
+              </button>
+            </div>
+            <div class="price-line"><span class="hint" id="priceStatus">harga belum diambil</span><span class="hint" id="priceNote"></span></div>
+            <div id="openList"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <div class="card-head">
+          <h2>Trade close terakhir</h2>
+          <div class="spacer"></div>
+          <button class="btn btn-ghost btn-sm" data-goto="trades">Lihat semua <svg class="ic ic-sm" aria-hidden="true"><use href="#i-arrow-right"/></svg></button>
+        </div>
+        <div class="table-wrap" id="recentTable"></div>
+      </div>
+
+      <div class="card" id="dashInsightCard" style="margin-top:16px">
+        <div class="card-head"><h2>Yang perlu dievaluasi</h2></div>
+        <div id="dashInsight"></div>
+      </div>
+    </section>
+
+    <!-- ============ TRADES ============ -->
+    <section class="view" id="view-trades">
+      <div class="card">
+        <div class="filters">
+          <div class="field">
+            <label for="fMarket">Market</label>
+            <select id="fMarket">
+              <option value="">Semua</option>
+              <option value="stock">Saham (IDX)</option>
+              <option value="crypto">Crypto</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="fStatus">Status</label>
+            <select id="fStatus">
+              <option value="">Semua</option>
+              <option value="closed">Sudah close</option>
+              <option value="open">Masih terbuka</option>
+              <option value="win">Profit</option>
+              <option value="loss">Loss</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="fTag">Tag / setup</label>
+            <select id="fTag"><option value="">Semua</option></select>
+          </div>
+          <div class="field grow">
+            <label for="fSearch">Cari simbol / catatan</label>
+            <input id="fSearch" type="search" placeholder="BBCA, BTC, breakout…" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="fSort">Urutkan</label>
+            <select id="fSort">
+              <option value="date-desc">Tanggal terbaru</option>
+              <option value="date-asc">Tanggal terlama</option>
+              <option value="pl-desc">P/L terbesar</option>
+              <option value="pl-asc">P/L terkecil</option>
+              <option value="r-desc">R terbesar</option>
+              <option value="symbol">Simbol A–Z</option>
+            </select>
+          </div>
+          <button class="btn btn-sm" id="btnResetFilter">Reset</button>
+          <button class="btn btn-sm" id="btnCsv">Export CSV</button>
+        </div>
+        <div class="filter-summary" id="filterSummary"></div>
+        <div class="table-wrap" id="tradesTable"></div>
+      </div>
+      <div class="kpis" id="filteredKpis" style="margin-top:16px"></div>
+    </section>
+
+    <!-- ============ ANALYTICS ============ -->
+    <section class="view" id="view-analytics">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head"><h2>Per setup / tag</h2><div class="spacer"></div><span class="hint">win rate &amp; net P/L</span></div>
+          <div class="table-wrap" id="anTags"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h2>Distribusi R</h2><div class="spacer"></div><span class="hint">ekspektasi per trade</span></div>
+          <div class="bars" id="anR"></div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top:16px">
+        <div class="card">
+          <div class="card-head"><h2>Per simbol</h2><div class="spacer"></div><span class="hint" id="anSymbolsHint"></span></div>
+          <div class="table-wrap" id="anSymbols"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h2>Per hari</h2><div class="spacer"></div><span class="hint">net P/L per hari close</span></div>
+          <div class="bars" id="anDow"></div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top:16px">
+        <div class="card">
+          <div class="card-head"><h2>Long vs short</h2></div>
+          <div class="table-wrap" id="anSide"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h2>Per psikologi</h2><div class="spacer"></div><span class="hint">disiplin vs emosi</span></div>
+          <div class="table-wrap" id="anEmotion"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ JOURNAL ============ -->
+    <section class="view" id="view-journal">
+      <div class="card">
+        <div class="card-head"><h2>Tulis jurnal harian</h2><div class="spacer"></div><span class="hint">kondisi market, eksekusi, pelajaran</span></div>
+        <form id="journalForm" novalidate>
+          <div class="form-grid">
+            <div class="field">
+              <label for="jDate">Tanggal</label>
+              <input type="date" id="jDate" required aria-required="true" aria-describedby="err-jDate">
+              <span class="field-error" id="err-jDate"></span>
+            </div>
+            <div class="field">
+              <label for="jMood">Mood</label>
+              <select id="jMood">
+                <option>Tenang &amp; sesuai plan</option>
+                <option>Terlalu percaya diri</option>
+                <option>FOMO / buru-buru</option>
+                <option>Ragu &amp; telat masuk</option>
+                <option>Revenge trading</option>
+                <option>Disiplin walau loss</option>
+              </select>
+            </div>
+            <div class="field span2">
+              <label for="jTitle">Judul</label>
+              <input type="text" id="jTitle" placeholder="Contoh: market sideways, saya overtrade">
+            </div>
+            <div class="field span4">
+              <label for="jBody">Catatan</label>
+              <textarea id="jBody" placeholder="Apa yang terjadi hari ini? Setup apa yang jalan, mana yang gagal, kenapa."></textarea>
+            </div>
+            <div class="field span4">
+              <label for="jLesson">Pelajaran / action item</label>
+              <input type="text" id="jLesson" placeholder="Contoh: maksimal 2 trade per hari, tunggu retest.">
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:14px;align-items:center">
+            <button class="btn btn-primary" type="submit">Simpan jurnal</button>
+            <span class="hint" id="journalEditHint" style="font-size:11px;color:var(--muted)"></span>
+          </div>
+        </form>
+      </div>
+      <div class="journal-list" id="journalList" style="margin-top:16px"></div>
+    </section>
+
+    <!-- ============ SETTINGS ============ -->
+    <section class="view" id="view-settings">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head"><h2>Preferensi</h2></div>
+          <div class="form-grid" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+            <div class="field">
+              <label for="sFeeStockBuy">Fee beli saham (%)</label>
+              <input type="number" step="0.01" min="0" id="sFeeStockBuy" class="num">
+            </div>
+            <div class="field">
+              <label for="sFeeStockSell">Fee jual saham (%)</label>
+              <input type="number" step="0.01" min="0" id="sFeeStockSell" class="num">
+            </div>
+            <div class="field">
+              <label for="sFeeCryptoBuy">Fee beli crypto (%)</label>
+              <input type="number" step="0.01" min="0" id="sFeeCryptoBuy" class="num">
+            </div>
+            <div class="field">
+              <label for="sFeeCryptoSell">Fee jual crypto (%)</label>
+              <input type="number" step="0.01" min="0" id="sFeeCryptoSell" class="num">
+            </div>
+            <div class="field">
+              <label for="sLotSize">1 lot saham = … lembar</label>
+              <input type="number" step="1" min="1" id="sLotSize" class="num">
+              <span class="field-hint">default 100 lembar (1 lot IDX)</span>
+            </div>
+          </div>
+          <div class="note">
+            Fee dipakai otomatis saat kamu centang <b>hitung fee otomatis</b> di form trade.
+            Default saham IDX: beli 0,15% &amp; jual 0,25%. Crypto 0,1% (spot).
+          </div>
+          <div style="margin-top:14px"><button class="btn btn-primary" id="btnSaveSettings">Simpan preferensi</button></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h2>Data</h2><div class="spacer"></div><span class="hint">semua profil tersimpan di browser ini</span></div>
+          <div style="display:grid;gap:10px">
+            <button class="btn" id="btnExportJson"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-download"/></svg> Export backup (JSON)</button>
+            <button class="btn" id="btnExportCsv2"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-download"/></svg> Export transaksi (CSV)</button>
+            <button class="btn" id="btnImportJson"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-upload"/></svg> Import backup (JSON)</button>
+            <input type="file" id="fileImport" accept="application/json,.json" hidden>
+            <button class="btn" id="btnSample">Muat data contoh</button>
+            <button class="btn btn-danger" id="btnWipe"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-trash"/></svg> Hapus data profil ini</button>
+          </div>
+          <div class="note">
+            <b>Tidak ada server.</b> Semua profil disimpan di <b>localStorage</b> browser ini.
+            Kalau cache/browser dibersihkan, data bisa hilang — rutin klik <b>Export backup</b>.
+            Mau akses dari HP dan laptop sekaligus? Backup JSON bisa di-import di perangkat lain.
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <div class="card-head"><h2>Harga live</h2><div class="spacer"></div><span class="hint" id="priceStatusSettings">—</span></div>
+        <div style="display:grid;gap:10px">
+          <div class="price-line"><span class="hint" id="priceNoteSettings"></span></div>
+          <div class="table-wrap">
+            <table>
+              <tbody>
+                <tr><td class="wrap"><b>Crypto</b> — harga dari Binance (host market data <span class="num">data-api.binance.vision</span>), pasangan dianggap USDT kalau simbol belum ada akhiran pair.</td></tr>
+                <tr><td class="wrap"><b>Saham IDX</b> — harga dari Yahoo Finance (<span class="num">KODE.JK</span>) lewat CORS proxy publik, karena bursa tidak menyediakan endpoint gratis ber-CORS.</td></tr>
+                <tr><td class="wrap"><b>Update</b> — otomatis begitu file dibuka (kalau cache lebih dari 1 jam) dan tiap 60 menit selama tab terbuka. Harga disimpan di browser, jadi tetap terlihat walau sedang offline.</td></tr>
+                <tr><td class="wrap"><b>Tidak bisa diambil?</b> Isi harga manual di kartu <b>Posisi terbuka</b> — P/L berjalan tetap dihitung, dan tandanya jelas "manual".</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div><button class="btn btn-sm" id="btnRefreshPrices2"><svg class="ic ic-sm" aria-hidden="true"><use href="#i-refresh"/></svg> Perbarui harga sekarang</button></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <div class="card-head"><h2>Cara pakai singkat</h2></div>
+        <div class="table-wrap">
+          <table>
+            <tbody>
+              <tr><td class="wrap"><b>1. Catat sebelum/sesudah entry.</b> Isi simbol, qty, harga entry, dan <b>stop loss</b>. Stop loss wajib kalau mau dapat R multiple.</td></tr>
+              <tr><td class="wrap"><b>2. R multiple</b> = net profit ÷ risiko awal (jarak entry ke stop × qty). Ini metrik paling jujur: +2R artinya profit dua kali risiko.</td></tr>
+              <tr><td class="wrap"><b>3. Tutup trade</b> dengan mengisi harga exit + tanggal exit. Statistik, kurva equity, dan analitik ikut ter-update.</td></tr>
+              <tr><td class="wrap"><b>4. Kasih tag setup</b> (breakout, pullback, scalping…) supaya analitik bisa bilang setup mana yang benar-benar menghasilkan uang.</td></tr>
+              <tr><td class="wrap"><b>5. Review tiap minggu.</b> Baca tab Analitik + Jurnal, cari pola: setup apa yang rugi terus, jam/hari apa yang buruk, emosi apa yang merusak.</td></tr>
+              <tr><td class="wrap"><b>Shortcut:</b> tekan <b>N</b> untuk trade baru, <b>Esc</b> untuk tutup form.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ============ TRADE MODAL ============ -->
+<div class="modal" id="tradeModal" role="dialog" aria-modal="true" aria-labelledby="tradeModalTitle">
+  <div class="modal-panel">
+    <div class="modal-head">
+      <h2 id="tradeModalTitle">Trade baru</h2>
+      <div class="spacer" style="flex:1"></div>
+      <button class="icon-btn" id="btnCloseModal" aria-label="Tutup form trade"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
+    </div>
+    <form id="tradeForm" novalidate>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="field">
+            <label for="tMarket">Market</label>
+            <select id="tMarket">
+              <option value="stock">Saham (IDX)</option>
+              <option value="crypto">Crypto</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="tSymbol">Simbol <span class="req" aria-hidden="true">*</span></label>
+            <input type="text" id="tSymbol" placeholder="BBCA / BTCUSDT" required aria-required="true" aria-describedby="err-tSymbol" autocomplete="off" style="text-transform:uppercase">
+            <span class="field-error" id="err-tSymbol"></span>
+          </div>
+          <div class="field">
+            <label for="tSide">Arah</label>
+            <select id="tSide">
+              <option value="long">Long / buy</option>
+              <option value="short">Short / sell</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="tCurrency">Mata uang</label>
+            <select id="tCurrency">
+              <option value="IDR">IDR (Rp)</option>
+              <option value="USD">USD ($)</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="tQty">Qty (lembar / koin) <span class="req" aria-hidden="true">*</span></label>
+            <input type="number" step="any" min="0" id="tQty" class="num" inputmode="decimal" placeholder="100" required aria-required="true" aria-describedby="err-tQty">
+            <span class="field-error" id="err-tQty"></span>
+          </div>
+          <div class="field">
+            <label for="tEntry">Harga entry <span class="req" aria-hidden="true">*</span></label>
+            <input type="number" step="any" min="0" id="tEntry" class="num" inputmode="decimal" placeholder="0" required aria-required="true" aria-describedby="err-tEntry">
+            <span class="field-error" id="err-tEntry"></span>
+          </div>
+          <div class="field">
+            <label for="tStop">Stop loss</label>
+            <input type="number" step="any" min="0" id="tStop" class="num" inputmode="decimal" placeholder="opsional">
+          </div>
+          <div class="field">
+            <label for="tTarget">Target</label>
+            <input type="number" step="any" min="0" id="tTarget" class="num" placeholder="opsional">
+          </div>
+
+          <div class="field">
+            <label for="tEntryDate">Tanggal entry</label>
+            <input type="datetime-local" id="tEntryDate" required>
+          </div>
+          <div class="field">
+            <label for="tExitDate">Tanggal exit</label>
+            <input type="datetime-local" id="tExitDate" aria-describedby="err-tExitDate">
+            <span class="field-error" id="err-tExitDate"></span>
+          </div>
+          <div class="field">
+            <label for="tExit">Harga exit</label>
+            <input type="number" step="any" min="0" id="tExit" class="num" inputmode="decimal" placeholder="kosong = masih terbuka">
+          </div>
+          <div class="field">
+            <label for="tFee">Fee total</label>
+            <input type="number" step="any" min="0" id="tFee" class="num" placeholder="0">
+          </div>
+
+          <div class="field span2">
+            <label for="tTags">Tag setup (pisahkan koma)</label>
+            <input type="text" id="tTags" placeholder="breakout, pullback, scalping" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="tEmotion">Psikologi saat entry</label>
+            <select id="tEmotion">
+              <option value="">—</option>
+              <option>Disiplin / sesuai plan</option>
+              <option>FOMO</option>
+              <option>Revenge</option>
+              <option>Overconfident</option>
+              <option>Ragu</option>
+              <option>Bosan / iseng</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Fee otomatis</label>
+            <label class="checkline"><input type="checkbox" id="tAutoFee" checked> Pakai % fee dari pengaturan</label>
+          </div>
+
+          <div class="field span4">
+            <label for="tNotes">Catatan / alasan entry</label>
+            <textarea id="tNotes" placeholder="Alasan entry, kondisi market, plan keluar. Screenshot bisa ditempel linknya."></textarea>
+          </div>
+        </div>
+
+        <div class="preview" id="tradePreview"></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-danger btn-sm" type="button" id="btnDeleteTrade" style="display:none">Hapus trade</button>
+        <div class="spacer"></div>
+        <button class="btn btn-ghost" type="button" id="btnCancelModal">Batal</button>
+        <button class="btn btn-primary" type="submit" id="btnSaveTrade">Simpan trade</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal" id="profileModal" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle">
+  <div class="modal-panel narrow">
+    <div class="modal-head">
+      <h2 id="profileModalTitle">Profil</h2>
+      <div class="spacer" style="flex:1"></div>
+      <button class="icon-btn" id="btnCloseProfile" aria-label="Tutup daftar profil"><svg class="ic" aria-hidden="true"><use href="#i-close"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <p class="field-hint" style="margin:0 0 12px">Tiap profil punya trade, jurnal, dan pengaturan sendiri &mdash; klik nama untuk mengganti.</p>
+      <div class="profile-list" id="profileList"></div>
+
+      <form id="profileForm" novalidate style="margin-top:18px;border-top:1px solid var(--line-soft);padding-top:16px">
+        <div class="form-grid" style="grid-template-columns:minmax(0,1fr) auto;align-items:end">
+          <div class="field">
+            <label for="newProfileName">Profil baru</label>
+            <input type="text" id="newProfileName" placeholder="Contoh: Akun utama, Akun crypto" autocomplete="off" aria-describedby="err-newProfileName">
+            <span class="field-error" id="err-newProfileName"></span>
+          </div>
+          <button class="btn btn-primary" type="submit"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg> Tambah</button>
+        </div>
+      </form>
+
+      <div class="note">
+        Backup JSON menyimpan <b>semua profil</b> sekaligus, jadi satu file cukup untuk pindah perangkat.
+        <button class="btn btn-ghost btn-sm" type="button" id="btnGoBackup" style="margin-top:8px">Buka Pengaturan &rarr; Data</button>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <div class="spacer"></div>
+      <button class="btn btn-ghost" type="button" id="btnDoneProfile">Selesai</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap" role="status" aria-live="polite" aria-atomic="false"></div>
+<div class="sr-only" id="srView" role="status" aria-live="polite"></div>
+<script src="app.js"></script>
+</body>
+</html>
