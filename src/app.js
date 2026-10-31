@@ -1586,6 +1586,15 @@
     save();
     closeTradeModal();
     renderAll();
+
+    /* harga live: hanya kalau posisi ini belum punya quote yang masih segar */
+    if (!isClosed(t) && canQuote(t) && !(num(t.manualPrice) > 0)) {
+      var qk = quoteKey(t);
+      var cached = qk ? state.prices.quotes[qk] : null;
+      if (!cached || (Date.now() - (cached.ts || 0)) > PRICE_TTL) {
+        setTimeout(function () { refreshPrices(true); }, 60);
+      }
+    }
   }
 
   function deleteTrade(id) {
