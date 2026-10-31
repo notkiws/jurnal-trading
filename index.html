@@ -1837,11 +1837,13 @@ input::placeholder, textarea::placeholder { color: #77817b; }
   function renderPriceStatus() {
     var host = $('#priceStatus');
     if (!host) return;
-    var open = state.trades.filter(function (t) { return !isClosed(t); });
+    var all = state.trades.filter(function (t) { return !isClosed(t); });
+    var open = all;
+    if (state.currency !== 'ALL') open = open.filter(function (t) { return (t.currency || 'IDR') === state.currency; });
     var quoted = open.filter(function (t) { return !!quoteFor(t); });
     var txt;
     if (state.priceLoading) txt = 'mengambil harga…';
-    else if (!open.length) txt = 'tidak ada posisi terbuka';
+    else if (!open.length) txt = all.length ? 'tidak ada posisi di filter ini' : 'tidak ada posisi terbuka';
     else if (state.prices.at) txt = 'harga ' + priceAge(state.prices.at) + ' · ' + quoted.length + '/' + open.length + ' posisi';
     else txt = 'belum ada harga';
     host.textContent = txt;
@@ -2129,7 +2131,7 @@ input::placeholder, textarea::placeholder { color: #77817b; }
       } else {
         uTxt = ut.n ? fmtMoney(ut[state.currency] || 0, state.currency) : '—';
       }
-      html += kpi('Unrealized P/L', uTxt, ut.n + '/' + openList.length + ' posisi ada harga · ' + priceAge(state.prices.at), cls(state.currency === 'ALL' ? (ut.IDR + ut.USD) : (ut[state.currency] || 0)) + ' sm');
+      html += kpi('Unrealized P/L', uTxt, ut.n + '/' + openList.length + ' posisi terbuka ada harga · ' + priceAge(state.prices.at), cls(state.currency === 'ALL' ? (ut.IDR + ut.USD) : (ut[state.currency] || 0)) + ' sm');
     }
 
     html += kpi('Max drawdown', !s.n ? '—' : (state.currency === 'ALL' ? fmtR(-s.rMaxDD) : fmtMoney(-s.maxDD, state.currency)), 'peak ke lembah', 'neg sm');
