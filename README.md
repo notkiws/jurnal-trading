@@ -19,10 +19,10 @@ tidak ada data yang dikirim ke mana pun: semua tersimpan di `localStorage`.
 
 ## Build
 
-Sumber dipecah jadi tiga file; versi publik digabung jadi satu:
+Sumber di `src/` (index.html, style.css, app.js); versi publik digabung jadi satu file:
 
 ```bash
-python3 build.py     # -> site/index.html
+python3 build.py     # -> index.html (root, yang disajikan GitHub Pages)
 ```
 
 ## Catatan
