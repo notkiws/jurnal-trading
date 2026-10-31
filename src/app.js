@@ -370,9 +370,10 @@
       state.prices.at = Date.now();
       var got = open.filter(function (t) { return !!quoteFor(t); }).length;
       var miss = open.length - got;
+      /* catatan tanpa angka: hitungan sudah ada di status (ikut filter) */
       state.priceNote = miss
-        ? 'Harga masuk untuk ' + got + ' dari ' + open.length + ' posisi. Yang gagal bisa diisi manual.'
-        : 'Harga terbaru untuk ' + got + ' posisi terbuka.';
+        ? 'Sebagian harga gagal diambil — posisi yang kosong bisa diisi manual.'
+        : 'Harga terbaru dari sumber publik: Binance (crypto), IDX via Yahoo (saham).';
       if (fileMode) state.priceNote += ' Harga saham IDX butuh versi online (CORS), bukan file lokal.';
       save();
       renderAll();
