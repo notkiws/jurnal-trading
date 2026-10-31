@@ -353,6 +353,14 @@
     state.priceNote = 'Mengambil harga…';
     renderPriceStatus();
 
+    /* file:// (dobel klik) → proxy CORS menolak origin null; saham dilewati, crypto tetap */
+    var fileMode = location.protocol === 'file:';
+    if (fileMode && stock.length) {
+      stock = [];
+      state.priceNote = 'Mode file lokal: harga saham IDX tidak bisa diambil otomatis. Buka versi online, atau isi harga manual.';
+      if (!crypto.length) { state.priceLoading = false; renderPriceStatus(); renderAll(); return; }
+    }
+
     var jobs = [];
     if (crypto.length) jobs.push(fetchCryptoPrices(crypto));
     if (stock.length) jobs.push(fetchStockPrices(stock));
@@ -365,6 +373,7 @@
       state.priceNote = miss
         ? 'Harga masuk untuk ' + got + ' dari ' + open.length + ' posisi. Yang gagal bisa diisi manual.'
         : 'Harga terbaru untuk ' + got + ' posisi terbuka.';
+      if (fileMode) state.priceNote += ' Harga saham IDX butuh versi online (CORS), bukan file lokal.';
       save();
       renderAll();
       renderPriceStatus();
